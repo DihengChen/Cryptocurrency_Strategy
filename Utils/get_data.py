@@ -6,8 +6,6 @@ Created on Thu Oct  4 12:31:16 2018
 """
 
 from fredapi import *
-def get_currency_symbols():
-    return all_currency_symbols
 class currency():
     def __init__(self,api_key=None):
         self.api_key=None
