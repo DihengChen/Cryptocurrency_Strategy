@@ -2,7 +2,8 @@
 """
 Created on Thu Oct  4 19:36:18 2018
 
-@author: njucd
+@Author: Diheng Chen
+@Email: dc3829@nyu.edu
 """
 
 import matplotlib.pyplot as plt
@@ -18,10 +19,10 @@ class result_daily():
         self.drawdown=self.cum_re-np.maximum.accumulate(self.cum_re)
         
     def get_metrics(self):
-        self.annual_re=self.cum_re[-1]/self.num_day*252
-        self.annual_std=np.std(self.re)*np.sqrt(252)
-        self.annual_sp=np.mean(self.re)/np.std(self.re)*np.sqrt(252)   
-        self.max_drawdown=np.max(self.drawdown)
+        self.ar=self.cum_re[-1]/self.num_day*252
+        self.std=np.std(self.re)*np.sqrt(252)
+        self.sp=np.mean(self.re)/np.std(self.re)*np.sqrt(252)   
+        self.mdd=np.min(self.drawdown)
         
     def figure_plot(self):
         ax1=plt.subplot(311)
@@ -37,6 +38,6 @@ class result_daily():
         
         ax3=plt.subplot(313)
         self.drawdown.plot(ax=ax3)
-        ax3.set(xlabel='',ylabel='Drawdown')
+        ax3.set(ylabel='Drawdown')
 
         plt.show()

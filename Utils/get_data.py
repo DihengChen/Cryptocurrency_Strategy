@@ -2,7 +2,8 @@
 """
 Created on Thu Oct  4 12:31:16 2018
 
-@author: Diheng Chen
+@Author: Diheng Chen
+@Email: dc3829@nyu.edu
 """
 
 from fredapi import *
@@ -16,7 +17,9 @@ class currency():
             self.api_key='dd5c1b8fdddaa8fdcbda543a0773c658'
             
         self.all_symbols=['DEXUSAL','DEXCAUS','DEXSZUS','DEXUSUK','DEXJPUS','DEXNOUS',\
-            'DEXUSNZ','DEXSDUS']
+            'DEXUSNZ','DEXSDUS','DTWEXM','DTWEXB','DEXUSEU','DEXCHUS','DEXMXUS',\
+            'DEXBZUS','DEXKOUS','DEXINUS','DEXVZUS','DEXMAUS','DEXTHUS','DEXSFUS'\
+            'DEXTAUS','DEXHKUS','DEXSIUS','DEXSLUS']
 
     def get_all_symbols(self):
         return self.all_symbols

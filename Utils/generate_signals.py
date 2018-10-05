@@ -2,7 +2,8 @@
 """
 Created on Thu Oct  4 16:48:25 2018
 
-@author: njucd
+@Author: Diheng Chen
+@Email: dc3829@nyu.edu
 """
 import pandas as pd
 import numpy as np
