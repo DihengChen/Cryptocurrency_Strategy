@@ -12,16 +12,17 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 class result_daily():
-    def __init__(self,re_turn):
+    def __init__(self,re_turn,DofY=252):
+        self.days_of_year=DofY
         self.re=re_turn
         self.cum_re=(re_turn+1).cumprod()-1
         self.num_day=len(re_turn)
         self.drawdown=self.cum_re-np.maximum.accumulate(self.cum_re)
         
     def get_metrics(self):
-        self.ar=self.cum_re[-1]/self.num_day*252
-        self.std=np.std(self.re)*np.sqrt(252)
-        self.sp=np.mean(self.re)/np.std(self.re)*np.sqrt(252)   
+        self.ar=self.cum_re[-1]/self.num_day*self.days_of_year
+        self.std=np.std(self.re)*np.sqrt(self.days_of_year)
+        self.sp=np.mean(self.re)/np.std(self.re)*np.sqrt(self.days_of_year)   
         self.mdd=np.min(self.drawdown)
         
     def figure_plot(self):
