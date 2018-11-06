@@ -7,6 +7,8 @@ Created on Thu Oct  4 16:48:25 2018
 """
 import pandas as pd
 import numpy as np
+import statsmodels.api as sm
+
 class signal_1():
     def __init__(self,data_dict,period=[8,16,32,24,48,96],DofY=252):
         self.data_dict=data_dict
@@ -55,3 +57,82 @@ class signal_1():
                           self.data_dict[index].value)
         self.signal_df.set_index(self.date,inplace=True)
         self.signal_df.dropna(inplace=True)
+
+class signal_2():
+    """
+    Mean Reverting and Momentum Strategy
+    Reference: 'Identifying Small Mean Reverting Portfolios'
+    """
+    def __init__(self, ret,card=3,period=182):
+
+        assert isinstance(ret, pd.DataFrame)
+        assert ret.isnull().values.sum() == 0
+
+        self.ret = ret
+        self.sample_size=len(ret)
+        self.num_symbol=ret.columns.size
+        self.period=period
+        self.k=card
+        self.signal_df=pd.DataFrame(columns=ret.columns)
+        self.date=ret.index
+        
+    def get_signal(self,opt='max'):
+        
+        for n in range(self.period,self.sample_size+1):
+        
+            St=self.ret.iloc[n-182:n,:]
+            S=St.iloc[1:,:].values
+            S_lag=St.iloc[:-1,:].values
+            gamma = St.cov().values
+            if np.linalg.det(S_lag.T @ S_lag)==0:
+                self.signal_df.loc[self.date[n-1]]=self.signal_df.loc[self.date[n-2]]
+                continue
+            A_ = np.linalg.inv(S_lag.T @ S_lag) @ S_lag.T @ S
+            
+            A = A_.T @ gamma @ A_
+            B = gamma
+            
+            def target(A, B, x):
+                return (x.T @ A @ x) / (x.T @ B @ x)
+            
+            I = []
+            I_c = [s for s in range(self.num_symbol)]
+            for i in range(self.k):
+                if len(I) == 0:
+                    if opt == 'max':
+                        index = (np.diag(A) / np.diag(B)).argmax()
+                    elif opt == 'min':
+                        index = (np.diag(A) / np.diag(B)).argmin()
+
+                    I.append(index)
+                    I_c.remove(index)
+                else:
+                    gain = -np.inf if opt == 'max' else np.inf
+                    for j in I_c:
+
+                        ran_ge = np.ix_(I + [j], I + [j])
+                        a = A[ran_ge]
+                        b = B[ran_ge]
+                        b_inv = np.linalg.inv(b)
+                        mat = b_inv @ a
+                        eig_val, eig_vec = np.linalg.eig(mat)
+
+                        if opt == 'max':
+                            x = eig_vec[:, eig_val.argmax()].reshape(-1, 1)
+                            if target(a, b, x) > gain:
+                                gain = target(a, b, x)
+                                z = x
+                                index = j
+                        elif opt == 'min':
+                            x = eig_vec[:, eig_val.argmin()].reshape(-1, 1)
+                            if target(a, b, x) < gain:
+                                gain = target(a, b, x)
+                                z = x
+                                index = j
+
+                    I.append(index)
+                    I_c.remove(index)
+
+            weights = np.zeros((self.num_symbol, 1))
+            weights[I, 0] = z.ravel()
+            self.signal_df.loc[self.date[n-1]]=weights.reshape(1,-1)[0]
